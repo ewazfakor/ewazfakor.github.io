@@ -12,7 +12,7 @@ body {
 header {
   background-color: #ffffff;
   color: #222222;
-  padding: 20px 40px;
+  padding: 20px;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -20,6 +20,7 @@ header {
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-wrap: wrap; /* allows wrapping on small screens */
 }
 
 .profile-photo {
@@ -28,6 +29,11 @@ header {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #e0e0e0;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 200px; /* ensures text doesn’t shrink too much */
 }
 
 header h1 {
@@ -55,7 +61,9 @@ nav ul {
   padding: 0;
   margin: 15px 0 0 0;
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap; /* allows wrapping on mobile */
+  gap: 15px;
+  justify-content: center;
 }
 
 nav ul li a {
@@ -68,52 +76,20 @@ nav ul li a:hover {
   color: #0073e6;
 }
 
-/* Sections */
-section {
-  margin: 40px;
-}
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .profile-header {
+    flex-direction: column; /* stack photo and text vertically */
+    align-items: center;
+    text-align: center;
+  }
 
-section h2 {
-  font-weight: 600;
-  color: #222222;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #222222; /* thinner line, matches font color */
-  padding-bottom: 5px;
-}
+  .profile-info {
+    min-width: auto;
+  }
 
-/* Contact list */
-.contact-list {
-  list-style: none;
-  padding-left: 20px;
-}
-
-.contact-list li {
-  margin: 12px 0;
-  font-size: 1.05em;
-}
-
-.contact-list i {
-  margin-right: 8px;
-  color: #222222;
-}
-
-.contact-list a {
-  color: #222222;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.contact-list a:hover {
-  text-decoration: underline;
-  color: #0073e6;
-}
-
-/* Footer */
-footer {
-  background-color: #f5f5f5;
-  color: #555555;
-  text-align: center;
-  padding: 15px;
-  margin-top: 30px;
-  font-size: 0.9em;
+  nav ul {
+    flex-direction: column; /* stack nav links vertically */
+    align-items: center;
+  }
 }
