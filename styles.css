@@ -25,9 +25,9 @@ header {
 .profile-photo {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
+  border-radius: 50%; /* circular photo */
   object-fit: cover;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #e0e0e0; /* subtle border */
 }
 
 header h1 {
