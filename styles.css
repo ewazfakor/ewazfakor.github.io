@@ -16,11 +16,40 @@ header {
   border-bottom: 1px solid #e0e0e0;
 }
 
+/* Navigation */
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #444444; /* lighter black than main font */
+  font-weight: 500;
+}
+
+nav ul li a:hover {
+  color: #0073e6;
+}
+
+/* Divider below navigation */
+.nav-divider {
+  border: none;
+  border-top: 0.5px solid #444444; /* thin line, lighter font color */
+  margin: 15px 0 25px 0;
+}
+
+/* Profile header */
 .profile-header {
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap; /* allows wrapping on small screens */
+  flex-wrap: wrap;
 }
 
 .profile-photo {
@@ -33,7 +62,7 @@ header {
 
 .profile-info {
   flex: 1;
-  min-width: 200px; /* ensures text doesn’t shrink too much */
+  min-width: 200px;
 }
 
 header h1 {
@@ -55,41 +84,66 @@ header p {
   color: #222222;
 }
 
-/* Navigation */
-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 15px 0 0 0;
-  display: flex;
-  flex-wrap: wrap; /* allows wrapping on mobile */
-  gap: 15px;
-  justify-content: center;
+/* Sections */
+section {
+  margin: 40px;
 }
 
-nav ul li a {
-  text-decoration: none;
+section h2 {
+  font-weight: 600;
   color: #222222;
+  margin-bottom: 10px;
+  border-bottom: 0.5px solid #222222; /* thin line, font color */
+  padding-bottom: 5px;
+}
+
+/* Contact list */
+.contact-list {
+  list-style: none;
+  padding-left: 20px;
+}
+
+.contact-list li {
+  margin: 12px 0;
+  font-size: 1.05em;
+}
+
+.contact-list i {
+  margin-right: 8px;
+  color: #222222;
+}
+
+.contact-list a {
+  color: #222222;
+  text-decoration: none;
   font-weight: 500;
 }
 
-nav ul li a:hover {
+.contact-list a:hover {
+  text-decoration: underline;
   color: #0073e6;
+}
+
+/* Footer */
+footer {
+  background-color: #f5f5f5;
+  color: #555555;
+  text-align: center;
+  padding: 15px;
+  margin-top: 30px;
+  font-size: 0.9em;
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .profile-header {
-    flex-direction: column; /* stack photo and text vertically */
+    flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
-  .profile-info {
-    min-width: auto;
-  }
-
   nav ul {
-    flex-direction: column; /* stack nav links vertically */
+    flex-direction: column;
     align-items: center;
   }
 }
