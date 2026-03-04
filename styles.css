@@ -1,60 +1,118 @@
+/* Base style */
 body {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  background-color: #f9f9fb;
-  color: #333333;
+  font-family: 'Inter', sans-serif; /* clean modern font */
+  background-color: #ffffff;        /* white background */
+  color: #222222;                   /* dark gray text */
   margin: 0;
   padding: 0;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
+/* Header */
 header {
-  background-color: #2c3e50;
-  color: #ffffff;
-  padding: 20px;
-  text-align: center;
+  background-color: #ffffff;
+  color: #222222;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+}
+
+header h1 {
+  font-weight: 600;
+  margin: 0;
+}
+
+header p {
+  margin: 5px 0;
+}
+
+.location {
+  font-size: 0.95em;
+  color: #555555;
+}
+
+.location i {
+  margin-right: 6px;
+  color: #0073e6; /* accent color for location icon */
+}
+
+/* Navigation */
 nav ul {
   list-style: none;
   padding: 0;
   margin: 15px 0 0 0;
   display: flex;
-  justify-content: center;
   gap: 20px;
 }
 
 nav ul li a {
   text-decoration: none;
-  color: #ecf0f1;
-  font-weight: bold;
+  color: #222222;
+  font-weight: 500;
 }
 
 nav ul li a:hover {
-  color: #f39c12;
+  color: #0073e6; /* blue accent on hover */
+}
+
+/* Sections */
+section {
+  margin: 40px;
 }
 
 section h2 {
-  font-family: 'Merriweather', serif;
-  color: #2c3e50;
-  border-bottom: 2px solid #f39c12;
+  font-weight: 600;
+  color: #222222;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #0073e6; /* accent underline */
   padding-bottom: 5px;
 }
 
-#contact a {
-  color: #333333; /* match text color */
-  font-size: 1.5em;
-  margin-right: 15px;
+/* Contact list */
+.contact-list {
+  list-style: none;
+  padding-left: 20px;
+}
+
+.contact-list li {
+  margin: 12px 0;
+  font-size: 1.05em;
+}
+
+.contact-list i {
+  margin-right: 8px;
+  color: #222222;
+}
+
+.contact-list a {
+  color: #0073e6;
   text-decoration: none;
 }
 
-#contact a:hover {
-  color: #f39c12; /* accent color on hover */
+.contact-list a:hover {
+  text-decoration: underline;
+  color: #005bb5;
 }
 
+/* Footer */
 footer {
-  background-color: #2c3e50;
-  color: #ffffff;
+  background-color: #f5f5f5;
+  color: #555555;
   text-align: center;
   padding: 15px;
   margin-top: 30px;
+  font-size: 0.9em;
 }
