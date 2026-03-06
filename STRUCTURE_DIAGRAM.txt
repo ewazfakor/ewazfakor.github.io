@@ -1,0 +1,193 @@
+📁 ewazfakor.github.io (Project Root)
+│
+├── 📄 index.html                    # Main portfolio homepage
+├── 📄 links.html                    # Useful links & resources page
+├── 📄 README.md                     # Project documentation
+├── 📄 FILE_STRUCTURE.md             # Detailed file structure guide
+│
+├── 📁 blog/                         # Blog section folder
+│   ├── 📄 index.html                # Blog main page (article list)
+│   └── 📄 first-post.html           # Sample blog post (LLMs as Development Accelerators)
+│
+└── 📁 assets/                       # Static assets folder
+    │
+    ├── 📁 css/                      # Stylesheets
+    │   └── 📄 style.css             # Main stylesheet (all pages reference this)
+    │
+    ├── 📁 images/                   # Image assets
+    │   └── 🖼️  avatar.jpg           # Profile avatar (252x252px circular)
+    │
+    └── 📁 icons/                    # Icon assets
+        └── 🔗 favicon.ico           # Browser tab favicon
+
+
+═════════════════════════════════════════════════════════════════════════
+
+📄 FILE DESCRIPTIONS
+
+ROOT LEVEL
+──────────
+• index.html
+  - Main portfolio & project showcase
+  - Contains: About, Projects, Work Experience, Conference Travels
+  - Navigation: [home], [cv], [blog], [travels], [links]
+  - References: assets/css/style.css, assets/images/avatar.jpg
+
+• links.html
+  - Curated resources and useful tools
+  - Contains: Recommended Courses, Free eBooks, AI Tools
+  - Navigation: [home], [links] (on other pages)
+  - References: assets/css/style.css
+
+BLOG FOLDER
+───────────
+• blog/index.html
+  - Blog main landing page
+  - Contains: Article list, Topics directory
+  - Navigation: [home], [blog], [links]
+  - References: ../assets/css/style.css
+
+• blog/first-post.html
+  - Sample blog post (LLMs as Development Accelerators)
+  - Contains: Full article with headings, paragraphs, lists
+  - Navigation: [home], [blog], [links]
+  - References: ../assets/css/style.css
+
+ASSETS FOLDER
+──────────────
+• assets/css/style.css
+  - Global stylesheet for entire website
+  - Contains: Typography, colors, layout, responsive design
+  - Used by: All HTML files
+  - Features: Source Serif Pro font, 14pt size, #0096FF links
+
+• assets/images/avatar.jpg
+  - Profile photograph (circular, 252x252px on desktop, 150x150px mobile)
+  - Used by: index.html
+  - Format: JPG or PNG
+  - Note: Replace with your own profile photo
+
+• assets/icons/favicon.ico
+  - Browser tab icon
+  - Used by: All pages (automatic)
+  - Format: ICO, PNG, or SVG
+  - Note: Add your favicon to this location
+
+
+═════════════════════════════════════════════════════════════════════════
+
+🔗 INTERNAL LINK STRUCTURE
+
+From index.html (root)
+├── [blog] → blog/           (opens blog/index.html)
+└── [links] → links.html     (same level)
+
+From links.html (root)
+└── [home] → index.html#     (same level, with anchor)
+
+From blog/index.html
+├── [home] → ../             (goes up to root, index.html)
+├── [article link] → first-post.html  (same folder)
+└── [links] → ../links.html  (goes up then to links.html)
+
+From blog/first-post.html
+├── [home] → ../             (goes up to root)
+├── [blog] → ./              (current directory, blog/index.html)
+└── [links] → ../links.html  (goes up then to links.html)
+
+
+═════════════════════════════════════════════════════════════════════════
+
+🎨 DESIGN SPECIFICATIONS
+
+Typography
+──────────
+• Primary Font: Source Serif Pro (serif)
+• Persian Text: Vazirmatn (sans-serif, RTL)
+• Base Size: 14pt (desktop), 13pt (mobile)
+• Line Height: 1.6 body, 1.8 posts
+• Headings: 700 weight (bold)
+• Body: 400 weight (regular)
+
+Colors
+──────
+• Links: #0096FF (bright blue)
+• Link Hover: #0078CC (darker blue)
+• Primary Text: #1a1a1a (dark gray/black)
+• Secondary Text: #555-#666
+• Borders: #eaeaea (light gray)
+• Background: #fff (white)
+
+Layout
+──────
+• Max Width: 2560px
+• Desktop Margins: 120px left/right
+• Mobile Margins: 20px left/right
+• Mobile Breakpoint: 600px
+• Section Spacing: 3% (top-buffer)
+
+Elements
+────────
+• Bullets: ▪ (small square, 1.2em)
+• Item Indent: 28px
+• Avatar: 252×252px (desktop), 150×150px (mobile)
+• Avatar Radius: 50% (circular)
+• Borders: 1px solid #eaeaea
+
+
+═════════════════════════════════════════════════════════════════════════
+
+📱 RESPONSIVE BREAKPOINTS
+
+Desktop (≥ 601px)
+─────────────────
+• Container Margin: 120px
+• Container Padding: 20px (vertical)
+• Font Size: 14pt
+• Avatar Size: 252×252px
+• Bullet Size: 1.2em
+• Navigation: Horizontal
+
+Mobile (≤ 600px)
+────────────────
+• Container Margin: 20px
+• Container Padding: 15px (vertical)
+• Font Size: 13pt
+• Avatar Size: 150×150px
+• Bullet Size: 1em
+• Navigation: Responsive
+
+
+═════════════════════════════════════════════════════════════════════════
+
+✅ DEPLOYMENT CHECKLIST
+
+Before deploying to GitHub Pages:
+
+□ Replace avatar.jpg with your profile photo
+□ Update avatar image in index.html if changed
+□ Add favicon.ico to assets/icons/
+□ Update all personal information in HTML files
+□ Update email links with your actual email
+□ Update social media links (Instagram, GitHub, etc.)
+□ Update blog posts and links content
+□ Test all internal links work correctly
+□ Test responsive design on mobile (600px breakpoint)
+□ Verify CSS loads correctly (check relative paths)
+□ Test on multiple browsers (Chrome, Firefox, Safari)
+
+Deployment Steps:
+
+1. Initialize git repository: git init
+2. Add all files: git add .
+3. Commit changes: git commit -m "Initial commit"
+4. Add remote: git remote add origin [your-repo-url]
+5. Push to GitHub: git push -u origin main
+6. Enable GitHub Pages in repository settings
+7. Wait for deployment (usually 1-2 minutes)
+8. Visit: https://ewazfakor.github.io/
+
+
+═════════════════════════════════════════════════════════════════════════
+
+© 2026 Ewaz Fakor
