@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../css/academicons.min.css">
+  <link href="../css/css2" rel="stylesheet">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/style.css">
+
+  <title>Learning RL (Part 1)</title>
+
+  <style>
+    .post-meta { opacity: 0.75; margin-bottom: 1.25rem; }
+    .post-content { margin-top: 1rem; }
+    .post-content h4 { margin-top: 1.5rem; }
+    .post-content pre {
+      background: #f6f8fa;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.95em;
+    }
+
+    /* Lightweight "algorithm block" that still allows MathJax rendering. */
+    .algo-block{
+      background:#f6f8fa;
+      border:1px solid rgba(0,0,0,0.08);
+      border-radius:6px;
+      padding:0.75rem 1rem;
+      margin:1rem 0;
+    }
+    .algo-title{
+      font-weight:600;
+      margin-bottom:0.5rem;
+    }
+    .algo-body{
+      margin:0;
+      padding-left:1.2rem;
+      list-style:none;
+    }
+    .algo-body li{ margin:0.25rem 0; list-style:none; }
+  </style>
+
+  <!-- MathJax (no build step). Supports $...$ and $$...$$ by default with this config. -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+  <div class="container pt-3">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <a href="../">[home]</a> &nbsp;
+        <a href="./">[blog]</a>
+
+        <br><br>
+        <h3>Learning RL (Part 1): From Tabular Methods to DQN</h3>
+        <div class="post-meta">2026-02-23</div>
+
+        <div class="contents" style="margin-bottom:1.5rem;">
+          <b>Contents</b>
+          <ul>
+            <li><a href="#mdp">Markov Decision Process</a></li>
+            <li><a href="#value-iteration">Value Iteration</a></li>
+            <li><a href="#policy-iteration">Policy Iteration</a></li>
+            <li><a href="#max-entropy-rl">Max-Entropy RL</a></li>
+            <li><a href="#dqn">Q Learning</a></li>
+          </ul>
+        </div>
+
+        I'm taking a break from research this quarter and decided that it's a good time revisit some of the fundamental topics. I'm starting this blog series to document my learning notes, and we will start with RL. This blog starts from the basic tabular setting and goes all the way to DQN, and the content will be largely based on <a href="https://www.youtube.com/playlist?list=PLwRJQ4m4UJjNymuBM9RdmB3Z9N5-0IlY0">Foundations of Deep RL by Pieter Abbeel</a>.
+
+        <a id="mdp"></a>
+        <div class="post-content">
+          <p>
+          <b>Markov Decision Process</b><br>
+          Let's start by defining the Markov Decision Process (MDP).
+          Suppose we have a set of states $S$, a set of actions $A$, a transition function $P(s'|s, a)$, a reward function $R(s, a, s')$, a discount factor $\gamma$, a start state $s_0$, and the number of steps (i.e., Horizon) $H$.
+          </p>
+
+          <p style="text-align: center;">
+            <img src="images/MDP.png" alt="Markov Decision Process diagram" style="max-width:100%;margin:1.5rem 0;">
+          </p>
+
+          The MDP is illustrated in the above diagram, where the agent starts at state $s_0$, and takes action $a$ at state $s$, then the environment transitions to state $s'$ with probability $P(s'|s, a)$, and the agent receives reward $R(s, a, s')$. The goal is to find the optimal policy $\pi$ that maximizes the expected reward: $$V^*(s) = \max_{\pi} \mathbb{E} \left[ \sum_{t=0}^{H} \gamma^t R(s_t, a_t, s_{t+1}) \mid s_0 = s \right]$$
+
+          where $V^*(s)$ is the optimal value function (i.e., sum of discounted rewards when starting from state $s$ to the end of the horizon $H$ under the optimal policy $\pi^*$).
+
+          <br><br>
+
+          <a id="value-iteration"></a>
+          <b>Value Iteration</b><br>
+
+          Let's start by thinking about how to compute the optimal value recursively :
+          <ul>
+            <li>
+              $V_0^*(s)$ denotes the optimal value for state $s$ when the horizon $H = 0$. Since the horizon is 0, there's no action to take, and we will just assume the value of doing nothing is 0 in this case: $V_0^*(s) = 0 \quad \forall s$.
+            </li>
+            <li>
+              $V_1^*(s)$ denotes the optimal value for state $s$ when the horizon $H = 1$. The agent can take one action, and we should choose the action that maximizes reward after taking that action (note that the transition is not deterministic so we need to consider all possible next states $s'$):<br>
+              $$V_1^*(s) = \max_{a} \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V_0^*(s') \right]$$
+            </li>
+            <li>
+              Similarly, we can recursively define $V_2^*(s)$ as:
+              $$V_2^*(s) = \max_{a} \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V_1^*(s') \right]$$
+            </li>
+            <li>
+              In general, we can recursively define $V_k^*(s)$ as:
+              $$V_k^*(s) = \max_{a} \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V_{k-1}^*(s') \right]$$
+              This is known as the Bellman equation for $V_k^*(s)$.
+            </li>
+          </ul>
+
+          We can therefore write out the value iteration algorithm as follows:
+          <br>
+
+          <div class="algo-block">
+            <div class="algo-title">Algorithm: Value Iteration</div>
+            <ol class="algo-body">
+              <li>Initialize: $V_0^*(s) \leftarrow 0 \;\; \forall s$.</li>
+              <li>For $k = 1, \ldots, H$: 
+                <ul>
+                  <li>for each state $s \in S$, update:</li>
+              <li>
+                $$V_k^*(s) = \max_{a} \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V_{k-1}^*(s') \right]$$
+              </li>
+              <li>
+                where the optimal policy can be extracted as:
+                $$\pi_k^*(s) = \arg \max_{a} \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V_{k-1}^*(s') \right]$$
+              </li>
+              </ul>
+            </ol>
+          </div>
+
+          where the optimal policy is simply greedy with respect to the value function.
+
+          In this setting, value iteration is guaranteed to converge to the optimal value function $V^*(s)$. To see why, let us denote $V^*_H(s)$ as the optimal value for $H$ steps, and $V^*(s)$ as the optimal value for infinite steps. The additional reward collected over additional time steps $H+1, H+2, \ldots$ is:
+          $$\gamma^{H+1} R(s_{H+1}) + \gamma^{H+2} R(s_{H+2}) + \ldots \leq \gamma^{H+1} R_{max} + \gamma^{H+2} R_{max} + \ldots = \frac{\gamma^{H+1}}{1-\gamma} R_{max}$$ 
+
+          Since $0 < \gamma < 1$, the additional reward goes to 0 as $H$ goes to infinity. 
+          <br><br>
+
+          We can do Q-value iteration in a similar way.
+          We define $Q^*(s, a)$ as the expected utility starting in state $s$, taking action $a$, and then following the optimal policy. We can write out the Bellman equation for $Q^*(s, a)$ as:
+          $$Q^*(s, a) = \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma \max_{a'} Q^*(s', a') \right]$$
+
+          We can easily plug this into the value iteration algorithm to get the Q-value iteration algorithm, where the update step does:
+          $$Q_k^*(s, a) = \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma \max_{a'} Q_{k-1}^*(s', a') \right]$$
+          And the optimal policy is greedy with respect to the Q-value function:
+          $$\pi_k^*(s) = \arg \max_{a} Q_k^*(s, a)$$
+
+
+          <a id="policy-iteration"></a>
+          <b>Policy Iteration</b><br>
+
+          For a given policy $\pi(s)$, if it's deterministic, we can evaluate the value function $V^\pi(s)$ as:
+          $$V^\pi(s) = \sum_{s'} P(s'|s, \pi(s)) \left[ R(s, \pi(s), s') + \gamma V^\pi_{k-1}(s') \right]$$
+
+          And if the policy is stochastic where $\pi(a|s)$ is the probability of taking action $a$ in state $s$, we can evaluate the value function $V^\pi(s)$ as:
+          $$V^\pi(s) = \sum_{a} \pi(a|s) \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V^\pi(s') \right]$$
+
+          Previously in value iteration and Q-value iteration, there's no explicit policy update step: we always adopt a greedy policy and only update the value (or Q-value) function. In the policy iteration algorithm, we alternate between policy evaluation and policy improvement steps:
+
+          <div class="algo-block">
+            <div class="algo-title">Algorithm: Policy Iteration</div>
+            <ol class="algo-body">
+              <li>Initialize $\pi(s)$ arbitrarily for all $s \in S$.</li>
+              <li>Loop:
+                <ul>
+                  <li>Policy evaluation for current policy $\pi_k(s)$, iterate until convergence: 
+                    $$V^{\pi_k}_{i+1}(s) \leftarrow \sum_{s'} P(s'|s, \pi_k(s)) \left[ R(s, \pi_k(s), s') + \gamma V^{\pi_k}_i(s') \right]$$</li>
+                  <li>Policy improvement (with fixed value function, find best action for one-step lookahead): 
+                    $$\pi_{k+1}(s) \leftarrow \arg \max_{a} \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma V^{\pi_k}_i(s') \right]$$
+                  </li>
+                  <li>Repeat until convergence.</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+
+          The crucial difference between policy iteration and value iteration is that policy iteration would fix the current policy first and update the value function until convergence, and then update the policy based on the fixed value function. On the other hand, value iteration just keeps doing the Bellman update until convergence.
+
+          <br><br>
+          <a id="max-entropy-rl"></a>
+          <b>Max-Entropy RL</b><br>
+          Reminder entropy measures uncertainty and is computed as: 
+          $$H(p) = \sum_i p(x_i) \log \frac{1}{p(x_i)} = - \sum_i p(x_i) \log p(x_i)$$
+
+          While the regular formualtion of RL aims to find (ignoring the discount factor):
+          $$\max_{\pi} \mathbb{E} \left[ \sum_{t=0}^{H} R_t \right]$$
+
+          The max entropy formulation aims to find:
+          $$\max_{\pi} \mathbb{E} \left[ \sum_{t=0}^{H} ( R_t + \beta H(\pi(\cdot|s_t)) ) \right]$$
+
+          This helps us find a distribution of near-optimal policies rather than collapsing to one. 
+          To solve it, let's first quickly recap constrained optimization. Suppose we want to solve: 
+          $$\max_{x} f(x) \quad \text{subject to} \quad g(x) = 0$$
+
+          The Lagrangian is:
+          $$\mathcal{L}(x, \lambda) = f(x) + \lambda g(x)$$
+          and the dual problem is:
+          $$\min_{\lambda} \max_{x} \mathcal{L}(x, \lambda) = \min_{\lambda} \max_{x} f(x) + \lambda g(x)$$
+          
+          At the optimal point, the gradient of the Lagrangian with respect to $x$ should be 0:
+          $$\frac{\partial \mathcal{L(x, \lambda)}}{\partial x} = 0, \quad \frac{\partial \mathcal{L(x, \lambda)}}{\partial \lambda} = 0$$
+
+          If we plug this into an one-step max-ent RL objective, we get:
+          $$\max_{\pi(a)} E[r(a)] + \beta H(\pi(\cdot|s)) = \max_{\pi(a)} \sum_{a} \pi(a) r(a) - \beta \sum_{a} \pi(a) \log \pi(a)$$
+          $$\min_{\lambda} \max_{\pi(a)} \mathcal{L(\pi(a), \lambda)} = \sum_{a} \pi(a) r(a) - \beta \sum_{a} \pi(a) \log \pi(a) + \lambda (\sum_{a} \pi(a) - 1)$$
+          Solve for $\pi(a)$ by setting the gradient to 0, we get:
+
+          $$\pi(a) = \frac{1}{Z} \text{exp}(\frac{1}{\beta} r(a)), \quad Z = \sum_{a} \text{exp}(\frac{1}{\beta} r(a))$$
+          Plugging this back into the objective, we get the optimal value: 
+          $$V = \beta \log \sum_{a} \text{exp}(\frac{1}{\beta} r(a))$$
+
+          Now let's consider the multi-step case. Our objective is:
+
+          $$\max_{\pi} \mathbb{E} \left[ \sum_{t=0}^{H} ( r_t + \beta H(\pi(\cdot|s_t)) ) \right]$$
+
+          As in value iteration, we can write out the Bellman equation for the value function:
+          \begin{align*}
+          V_k(s) 
+            &= \max_{\pi} \mathbb{E}\left[ \sum_{t = (H-k)}^{H} \left( r_t + \beta H(\pi(a_t \mid s_t)) \right) \right] \\
+            &= \max_{\pi} \mathbb{E}\left[ r(s, a) + \beta H(\pi(a \mid s)) + \gamma V_{k-1}(s') \right] \\
+            &= \max_{\pi} \mathbb{E}\left[ Q_k(s,a) + \beta H(\pi (a \mid s)) \right] \\
+          \end{align*}
+
+          where $Q_k(s,a) = E [r(s, a) + V_{k-1}(s')]$.
+
+          The above reduces to the one-step case with $Q$ instead of $r$. We can directly trasnscribe the solution:
+
+          $$V_k(s) = \beta \log \sum_{a} \text{exp}(\frac{1}{\beta} Q_k(s,a))$$
+          $$\pi_k(a|s) = \frac{1}{Z_k} \text{exp}(\frac{1}{\beta} Q_k(s,a)), \quad Z_k = \sum_{a} \text{exp}(\frac{1}{\beta} Q_k(s,a))$$
+
+          You can recognize that this is taking the softmax of the Q-value function:
+          $$\pi_k(a|s) = \text{softmax}(\frac{1}{\beta} Q_k(s,a))$$
+
+          where $\beta$ functions like a temperature parameter. When $\beta \to 0$, the policy becomes greedy. When $\beta \to \infty$, the policy becomes uniform.
+
+          <br><br>
+          <a id="dqn"></a>
+          <b>Q Learning</b><br>
+          In the tabular setting so far (finite number of states and actions), remember we defined Q-value as the expected return you’ll get if you start in state $s$ and take action $a$ now. You can get the optimal Q-value (i.e., following the optimal policy after taking action $a$) by using the Bellman equation:
+          $$Q^*(s,a) = \sum_{s'} P(s'|s, a) \left[ R(s, a, s') + \gamma \max_{a'} Q^*(s', a') \right]$$
+
+          Based on this, we have the Q-value iteration algorithm:
+          $$Q_{k+1}(s,a) \leftarrow E_{s' \sim P(s'|s, a)}[R(s, a, s') + \gamma \max_{a'} Q_k(s', a')]$$
+
+          Instead of enumerating all possible next states $s'$, we can use a sample-based approach to estimate the Q-value: 
+
+          <div class="algo-block">
+            <div class="algo-title">Algorithm: Tabular Q-Learning</div>
+            <ol class="algo-body">
+              <li>Start with $Q_0(s,a)$ for all $s,a$.</li>
+              <li>Get initial state $s$.</li>
+              <li>For $k=0,1,2,\ldots$ till convergence:
+                <ul>
+                  <li>Sample action $a$ and get next state $s'$.</li>
+                  <li>If $s'$ is terminal:</li>
+                    <ul>
+                      <li>target = $R(s,a,s')$</li>
+                      <li>Sample new initial state $s'$.</li>
+                    </ul>
+                  <li>If $s'$ is not terminal:</li>
+                    <ul>
+                      <li>target = $R(s,a,s') + \gamma \max_{a'} Q_k(s', a')$</li>
+                    </ul>
+                  <li>$Q_{k+1}(s,a) \leftarrow (1 - \alpha)Q_k(s,a) + \alpha [\text{target}] \quad$ (moving average update)</li>
+                  <li>Set $s \leftarrow s'$.</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+
+          Note that tabular Q-learning is <i>model-free</i>, i.e., we don't need to know the transition model $P(s'|s, a)$. This is the main difference between tabular Q-learning and Q-value iteration, and it allows us to learn the Q-value function from data in unknown or complex environments.
+
+          When sampling actions, we usually use an $\epsilon$-greedy policy: choose a random action with probability $\epsilon$ and choose the greedy action with probability $1-\epsilon$.
+
+          <br><br>
+          This means that Q-learning is an <i>off-policy</i> algorithm, i.e., we are using the greedy action to update the Q-value function, but we are sampling actions from a different policy (the $\epsilon$-greedy policy). Nevertheless, it still converges to the optimal Q-value function as long as we satisfy the following two conditions:
+          <ul>
+            <li>All states and actions are visited infinitely often.</li>
+            <li>The learning rate $\alpha$ decays appropriately such that for each $(s,a)$ pair: $\sum_{t=0}^{\infty} \alpha_t(s,a) = \infty$ and $\sum_{t=0}^{\infty} \alpha_t^2(s,a) < \infty$.</li>
+          </ul>
+
+          Now let's think beyond the tabular setting. Enumerating all states is impossible for more complex environments, and so instead of learning a table of Q-values, we need a parameterized Q function $Q_\theta(s,a)$ (e.g., a neural network). We can still compute the target in a similar way:
+          $$\text{target} = R(s,a,s') + \gamma \max_{a'} Q_{\theta_k}(s', a')$$
+
+          But the update rule is now to fit update the parameters of the neural network to fit the target:
+          $$\theta_{k+1} \leftarrow \theta_k - \alpha \nabla_{\theta} [\frac{1}{2} (Q_{\theta_k}(s,a) - \text{target}(s'))^2]$$
+
+          Combining this with experience replay, we get the Deep Q-Learning algorithm from the DeepMind <a href="https://arxiv.org/abs/1312.5602" target="_blank">DQN paper</a>:
+          
+          <div class="algo-block">
+            <div class="algo-title">Algorithm: Deep Q-Learning with Experience Replay</div>
+            <ol class="algo-body">
+              <li>Initialize replay memory $D$ to capacity $N$.</li>
+              <li>Initialize action-value function $Q$ with random weights.</li>
+              <li>For episode = 1, ..., $M$, do:
+                <ul>
+                  <li>Initialize sequence $s_1 = {x_1}$ and preprocessed sequence $\phi_1 = \phi(s_1)$.</li>
+                  <li>For $t=1, \ldots, T$, do:</li>
+                    <ul>
+                      <li>With probability $\epsilon$ select a random action $a_t$,</li>
+                      <li>otherwise select $a_t = \arg \max_{a} Q( \phi(s_t), a; \theta )$.</li>
+                      <li>Execute action $a_t$ in emulator and observe reward $r_t$ and next screen $x_{t+1}$.</li>
+                      <li>Set $s_{t+1} = s_t, a_t, x_{t+1}$ and preprocess $\phi_{t+1} = \phi(s_{t+1})$.</li>
+                      <li>Store transition $( \phi_t, a_t, r_t, \phi_{t+1} )$ in $D$.</li>
+                      <li>Sample random minibatch of transitions $( \phi_j, a_j, r_j, \phi_{j+1} )$ from $D$.</li>
+                      <li>Set $y_j =$ &#123; <br>
+                        &nbsp;&nbsp; $r_j$ &nbsp; &nbsp; for terminal $\phi_{j+1}$ <br>
+                        &nbsp;&nbsp; $r_j + \gamma \max_{a'} Q(\phi_{j+1}, a'; \theta)$ &nbsp; otherwise <br>
+                      &#125;</li>
+                      <li>Perform a gradient descent step on $(y_j - Q(\phi_j, a_j; \theta))^2$.</li>
+                    </ul>
+                  <li>end for</li>
+                </ul>
+                <li>end for</li>
+              </li>
+            </ol>
+          </div>
+
+          <br><br>
+          <b>References:</b><br>
+          <ul>
+            <li>
+              <a href="https://www.youtube.com/playlist?list=PLwRJQ4m4UJjNymuBM9RdmB3Z9N5-0IlY0">Foundations of Deep RL by Pieter Abbeel</a>
+            </li>
+            <li>
+              <a href="https://web.stanford.edu/class/cs234/modules.html">Stanford CS234 by Emma Brunskill</a>
+            </li>
+          </ul>
+          <br><br>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
